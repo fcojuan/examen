@@ -1,0 +1,473 @@
+﻿@page "/cEmpleado/ListEmpleados"
+
+@using Dapper;
+@using Modelo.Dto;
+@using Modelo.Entity;
+@using Modelo.Mapeo;
+@using Negocio.Interfaces;
+@using Rinku.Componentes
+@using System.Data;
+@attribute [Authorize]
+
+
+
+@inject IGeneral<EmpleadoDTO> lService
+@inject IGeneral<LlenarComboDto> lServiceCombo  //un solo servicio para llenar Combo*@
+
+
+<CardBlazor ColorMarco="bg-warning" ColorTexto="#000000" Titulo="E M P L E A D O S">
+    <Contenido>
+        <div class="btn-toolbar" style="display: flex;justify-content: center;">
+
+            <div class="form-group col-md-3">
+                <button class="btn btn-primary" @onclick="@(()=>OpenModalDialog(0))" data-toggle="tooltip" data-placement="top" title="Nuevo Registro"><i class="oi oi-plus"></i> Nuevo</button>
+                <a href="/" class="btn btn-primary" role="button">
+                    <i class="fas fa-user-plus"></i>
+                    Salir
+                </a>
+            </div>
+
+            <div class="col-md-3">
+                <input type="text" class="form-control" placeholder="Search by Name" @bind-value="@searchText" @bind-value:event="oninput" @onkeyup="SearchChanged" />
+            </div>
+            <div class ="form-group" style="display: flex">
+@*                <label for="Sucursal" class="control-label" style="font-weight:bold;margin-top:15px;padding-left:20px !important;padding-right:5px !important;">Filtro</label>
+                <InputSelect class="form-control" @bind-Value:get="lfiltro" @bind-Value:set=this.OnUpdate style="border:1px solid #48C9B0;" tabindex="2">
+                    @foreach (var campo in FiltroEmp)
+                    {
+                        <option value="@campo.Codigo">&nbsp;&nbsp;&nbsp;@campo.Nombre&nbsp;&nbsp;&nbsp;</option>
+                    }
+                </InputSelect>*@
+            </div>
+
+        </div>
+
+        @if (DatosObj!=null)
+        {
+            @if (DatosObj.Count < 1)
+            {
+                if (@isLoading)
+                {
+                    <div class="spinner"></div>
+                }
+                <p>Sin Información......</p>
+            }
+            else
+            {
+                <GridBlazor Title="" Items="@DatosObj" Context="Datos">
+                    <HeaderTemplate>
+                        <th class="th-sm"></th>
+                        @*<th class="th-sm">Sucursal</th>*@
+                        <th class="th-sm">Codigo</th>
+                        <th class="th-sm">Nombre</th>
+@*                        <th class="th-sm">Fecha Nac.</th>
+                        <th class="th-sm">RFC</th>
+                        <th class="th-sm">NSS</th>
+                        <th class="th-sm">FechaAlta</th>*@
+                        <th class="th-sm">Situación</th>
+                    </HeaderTemplate>
+                    <RowTemplate>
+                        <td>
+                            <button class="btn btn-outline-success btn-sm" data-toggle="tooltip" data-placement="top" title="Editar Registro"
+                                @onclick="@(() =>OpenModalDialog(@Datos.Id))">
+                                <i class="oi oi-pencil"></i>
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm" data-toggle="tooltip" data-placement="top" title="Baja Registro"
+                                    @onclick="@(()=>OpenDeleteDialog(@Datos.Id))">
+                                    <i class="oi oi-trash"></i>
+                            </button>
+                        </td>
+                        @*<td class="text-center">@Datos.Sucursal</td>*@
+                        <td class="text-left">@Datos.Codigo</td>
+                        <td class="text-left">@Datos.NombreCompleto</td>
+@*                        <td class="text-center">@Convert.ToDateTime(@Datos.FechaNacimiento).ToShortDateString()</td>
+                        <td class="text-left">@Datos.Rfc</td>
+                        <td class="text-center">@Datos.NSS</td>
+                        <td class="text-center">@Convert.ToDateTime(@Datos.FechaAlta).ToShortDateString()</td>*@
+                          <td class="text-center" style="@ColorRegistro(@Datos.Estatus)">
+                            @situacionRow
+                        </td>
+                    </RowTemplate>
+                </GridBlazor>
+            }
+        }
+
+        @*--------------------------------------------------------------------------------------*@
+        @*------------------------------MODALES-------------------------------------------------*@
+        @*--------------------------------------------------------------------------------------*@
+        @if (OpenDialogoDelete)
+        {
+            <ModalDelete Show="ShowModal" Tamaño="" Title="@ModalHeader" OnClose="@CloseDialogDelete"
+                         DialogType="@Botonmodal">
+                <ModalBody>
+                    @ContenidoBody
+                </ModalBody>
+            </ModalDelete>
+        }
+
+        @if (OpenDialogoAddEdit)
+        {
+            @*tamaño: modal-dialog modal-sm    modal-dialog modal-lg    modal-dialog modal-xl    ""*@
+            <ModalCustom Show="ShowModal" TItem="EmpleadoDTO" Model="model" Tamaño="modal-dialog modal-lg" OnValidSubmit="SaveModelo" OnInValidSubmit="SaveModelo" Title="@ModalHeader" OnClose="@OnDialogClose"
+                     DialogType="ModalCustom<EmpleadoDTO>.ModalDialogType.GuardarCancel">
+                <ModalBody>
+                    @*<DataAnnotationsValidator />*@ @*--Validamos el formulario y si esta en error los marca en rojo y el texto lo pone en la parte superior*@
+                    @*<ValidationSummary />*@ @*--Muestra mensaje que defines en modelo*@
+                    <div class="row">
+                        <div class="input-group d-inline-flex">
+                            <div class="form-group col-md-2" style="padding-left:5px !important;padding-right:5px !important;">
+                                <InputTextCustom Label="Codigo" LabelStyle="font-weight:bold;" @bind-Value="model.Codigo"
+                                             ValidationFor="@(() => model.Codigo)" BorderDiseño="1px solid" ColorBorde="#48C9B0" ValidarEnter=true Desactivar=true tabindex="1" />
+                            </div>
+                            <div class="form-group col-md-4" style="padding-left:5px !important;padding-right:5px !important;">
+                                <InputTextCustom Label="Nombre" LabelStyle="font-weight:bold;" @bind-Value="model.Nombre"
+                                ValidationFor="@(() => model.Nombre)" BorderDiseño="1px solid" ColorBorde="#48C9B0" ValidarEnter=true tabindex="2" />
+                            </div>
+                            <div class="form-group col-md-3" style="padding-left:5px !important;padding-right:5px !important;">
+                                <InputTextCustom Label="Apellido Paterno" LabelStyle="font-weight:bold;" @bind-Value="model.ApellidoP"
+                                ValidationFor="@(() => model.ApellidoP)" BorderDiseño="1px solid" ColorBorde="#48C9B0" ValidarEnter=true tabindex="3" />
+                            </div>
+                            <div class="form-group col-md-3" style="padding-left:5px !important;padding-right:5px !important;">
+                                <InputTextCustom Label="Apellido Materno" LabelStyle="font-weight:bold;" @bind-Value="model.ApellidoM"
+                                ValidationFor="@(() => model.ApellidoM)" BorderDiseño="1px solid" ColorBorde="#48C9B0" ValidarEnter=true tabindex="4" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-group d-inline-flex">
+                            <div class="form-group col-md-3" style="padding-left:5px !important;padding-right:5px !important;">
+                                <label for="Puesto" class="control-label" style="font-weight:bold;">Puesto</label>
+                                <InputSelect class="form-control" @bind-Value="model.IdRol" style="border:1px solid #48C9B0;" tabindex="5" autocomplete="off">
+                                    <option value="">-- Seleccione Valor --</option>
+                                    @foreach (var campo in Puesto)
+                                    {
+                                        <option value="@campo.Codigo">@campo.Nombre</option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(() => model.IdRol)" />
+                            </div>
+                            <div class="form-group col-xs-12 col-md-2" style="padding-right:5px !important;padding-left:5px !important;">
+                                <label for="SueldoxHora" class="control-label col-md-12" style="font-weight:bold;">Sueldo x Hora</label>
+                                <InputNumber form="SueldoxHora" class="form-control" style="text-align:right;border:1px solid #48C9B0;"
+                                         @bind-Value="model.SueldoHora" @bind-Value:format="##,###,###0.00" autocomplete="off"
+                                         title="Total en # de Dias" tabindex="6"></InputNumber>
+                                <ValidationMessage For="@(() => model.SueldoHora)" />
+                            </div>
+                            <div class="form-group col-xs-12 col-md-3" style="padding-right:5px !important;padding-left:5px !important;">
+                                <label for="JornadaLaboral" class="control-label col-md-12" style="font-weight:bold;">Jornada Laboral</label>
+                                <InputNumber form="JornadaLaboral" class="form-control" style="text-align:right;border:1px solid #48C9B0;"
+                                         @bind-Value="model.JornadaLaboral" @bind-Value:format="#0.00" autocomplete="off"
+                                         title="Total en # de Dias" tabindex="7"></InputNumber>
+                                <ValidationMessage For="@(() => model.JornadaLaboral)" />
+                            </div>
+                            <div class="form-group col-xs-12 col-md-2" style="padding-right:5px !important;padding-left:5px !important;">
+                                <label for="DiasXTrabajar" class="control-label col-md-12" style="font-weight:bold;">Dias A Trabajar</label>
+                                <InputNumber form="DiasXTrabajar" class="form-control" style="text-align:right;border:1px solid #48C9B0;"
+                                         @bind-Value="model.DiasTrabajo" @bind-Value:format="#0.00" autocomplete="off" min="1" max="10"
+                                         title="Total en # de Dias" tabindex="8"></InputNumber>
+                                <ValidationMessage For="@(() => model.DiasTrabajo)" />
+                            </div>
+                        </div>
+                    </div>
+
+                </ModalBody>
+            </ModalCustom>
+        }
+
+
+
+    </Contenido>
+</CardBlazor>
+
+@code {
+
+    private bool isLoading = true;
+    string[] lParam = { };
+    string[] lVar = { };
+    string situacionRow = "";
+    private string lfiltro = "1";
+    private List<EmpleadoDTO> DatosObj = new();
+    private List<LlenarComboDto> Puesto = new();
+
+    private string searchText = string.Empty;
+    string newfiltro = ""; /*"FechaBaja != 'B'";*/
+
+    //---------------MODAL-------------------
+    //----delete
+    bool ShowModal = false;
+    Rinku.Componentes.ModalDelete.ModalDialogType Botonmodal = ModalDelete.ModalDialogType.DeleteCancel;
+    public string ModalHeader = "";
+    public object ContenidoBody = "";
+    //--nuevo y edicion
+    private int IdDato = 0;
+    EmpleadoDTO model = new EmpleadoDTO();
+    private bool OpenDialogoAddEdit { get; set; }
+    private bool OpenDialogoDelete { get; set; }
+    //----------------------------------------
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+
+        await Task.Run(() => LoadList(newfiltro));
+
+        await LlenarCombox();
+    }
+
+    private async Task LoadList(string pfiltro="")
+    {
+        try
+        {
+            //System.Threading.Thread.Sleep(3000);
+            var parametrosEnvio = ParametrosSp(2, model, pfiltro);
+
+            DatosObj = await lService.ListAll("c_spEmpleado", await parametrosEnvio.ConfigureAwait(false));  //cuando no es asincrona la funcion se llama asi, await Task.Delay(1); para que StateHasChanged() funcione
+
+            isLoading = false;
+        }
+        catch (Exception e)
+        {
+            await JsRuntime.InvokeVoidAsync("MostrarToastr", "error", e.Message);
+        }
+    }
+
+    private async Task SearchChanged()
+    {
+        bool entro = false;
+        newfiltro = "Nombre like '%" + searchText + "%'";
+        int longitud = searchText.Trim().Length;
+
+        int numericValue;
+        bool isNumber = int.TryParse(searchText, out numericValue);
+
+        if (isNumber)
+        {
+            entro = true;
+            newfiltro = "Id=" + searchText;
+        }
+        else
+        {
+            if (longitud > 2)
+            {
+                entro = true;
+            }
+        }
+        //---
+        if (entro || longitud <= 0)
+        {
+            await Task.Run(() => LoadList());
+            await InvokeAsync(StateHasChanged);
+        }
+
+    }
+
+    private async Task<IDictionary<string, object>> ParametrosSp(int opc, EmpleadoDTO lmodel, string filtro = "")
+    {
+        string[] lParam = { "@Opc", "@Id", "@Filtro", "@Nombre" };
+        string[] valor = { opc.ToString(), lmodel.Id.ToString(), filtro, lmodel.Nombre };
+
+        var parametros = await Task.Run(() => lService.CreaDiccionario(lParam, valor));
+
+        return parametros;
+    }
+
+    private async Task LlenarCombox()
+    {
+        lParam = new string[] { "@Opc" };
+        lVar = new string[] { "1" };
+
+        var parametrosEnvio = await Task.Run(() => lService.CreaDiccionario(lParam, lVar));
+        Puesto = await lServiceCombo.ListAll("LlenarCombos", parametrosEnvio);
+    }
+
+    private string ColorRegistro(string valor)
+    {
+        string colorRegreso = "";
+        switch (valor)
+        {
+            case  "B":
+                situacionRow = "BAJA";
+                colorRegreso = "color:red";
+                break;
+            default:
+                situacionRow = "";
+                colorRegreso = "color:white";
+                break;
+
+        }
+        return colorRegreso;
+    }
+
+    private async Task OnUpdate(string e)
+    {
+        string xfiltro = "";
+        switch (e)
+        {
+            case "2":
+                xfiltro = "e.Estatus=''";
+                break;
+            case "3":
+                xfiltro = "e.Estatus='B'";
+                break;
+            default:
+                xfiltro = "";
+                break;
+        }
+
+        await Task.Run(() => LoadList(xfiltro));
+        await InvokeAsync(StateHasChanged);
+        //Asigan el valor de nuevo
+        lfiltro = e;
+    }
+    //----------------------M O D A L -------------------------
+    //------------MODAL PARA BORRAR REGISTRO
+    private async Task OpenDeleteDialog(int id)
+    {
+        model = new EmpleadoDTO();
+
+        IdDato = id;
+        await BuscarRegistro(id);
+
+        if (model.Estatus == "B")
+        {
+            ModalHeader = "Desea Activar El Registro?";
+            Botonmodal = ModalDelete.ModalDialogType.OkCancel;
+        }
+        else
+        {
+            ModalHeader = "Desea Desactivar El Registro?";
+        }
+
+        ContenidoBody = model.Nombre.Trim();
+        OpenDialogoDelete = true;
+        ShowModal = true;
+    }
+
+    private async Task BuscarRegistro(int id)
+    {
+        if (id > 0)
+        {
+            var lmodelo = model;
+            var parametrosEnvio = ParametrosSp(4, lmodelo, "e.Id=" + id.ToString());
+            model = await lService.BDBuscarReg("c_spEmpleado", await parametrosEnvio.ConfigureAwait(false));
+        }
+    }
+
+    private async Task CloseDialogDelete(bool accepted)
+    {
+        if (accepted) //Borra el Registro
+        {
+            var lmodelo = model;
+            var parametrosEnvio = ParametrosSp(3, lmodelo);
+
+            int result = await lService.BDAccion("c_spEmpleado", await parametrosEnvio.ConfigureAwait(false));
+
+            await LoadList();
+            IdDato = 0;
+        }
+        ShowModal = false;
+        OpenDialogoDelete = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    //------------MODAL NUEVO O EDITAR REGISTRO
+    private async Task OpenModalDialog(int id)
+    {
+        string Nom = "Empleado";
+        model = new EmpleadoDTO();
+
+        ModalHeader = Nom+" - EDITAR";
+        if (id == 0)
+        {
+            //Inabilitar = false;
+            ModalHeader = Nom + " - - ALTA";
+            lParam = new string[] { "@Opc" };
+            lVar = new string[] { "5" };
+
+            var parametrosEnvio = await Task.Run(() => lService.CreaDiccionario(lParam, lVar));
+            model.Codigo = await lServiceCombo.BDAccionString("c_spEmpleado", parametrosEnvio);
+        }
+        else
+        {
+            //Inabilitar = true;
+            await BuscarRegistro(id);
+        }
+
+        await LlenarCombox();//Llena los Combox
+        OpenDialogoAddEdit = true;
+        ShowModal = true;
+
+        await InvokeAsync(StateHasChanged);//Recarga el grid
+    }
+
+    private async Task SaveModelo(bool valormodel)
+    {
+        try
+        {
+            if (valormodel) //valida el modelo y regresa true o false
+            {
+                var variable = MyAutoMapper<EmpleadoDTO, EmpleadoE>.Map(model);
+
+                int valor = await Task.Run(() => lService.InsertUpdateModelo("c_spEmpleado", variable));
+                MostrarMensaje("save", "spEmpleados", valor);
+
+                OpenDialogoAddEdit = false;
+                ShowModal = false;
+
+                await Task.Run(() => LoadList());
+                await InvokeAsync(StateHasChanged); //Recarga el grid
+            }
+        }
+        catch (Exception e)
+        {
+            MostrarMensaje("error", e.Message);
+        }
+
+    }
+    //------------CERRAR MODAL
+    private async Task OnDialogClose(bool accepted)
+    {
+
+        ShowModal = false;
+        OpenDialogoAddEdit = false;
+        OpenDialogoDelete = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void MostrarMensaje(string opc, string mensajeError, int valor = -1)
+    {
+        string tipo = string.Empty;
+        string tipomsg = string.Empty;
+
+        if (valor == 1) { opc = "error"; }
+
+        switch (opc)
+        {
+            case "save":
+                tipo = "MostrarSwal";
+                tipomsg = "success";
+                mensajeError = "Información Guardada";
+                break;
+            case "correcto":
+                tipo = "MostrarToastr";
+                tipomsg = "success";
+                mensajeError = "Proceso Correcto";
+                break;
+            case "info":
+                tipo = "MostrarToastr";
+                tipomsg = "info";
+                mensajeError = "Informativo";
+                break;
+            case "warning":
+                tipo = "MostrarToastr";
+                tipomsg = "warning";
+                mensajeError = "Advertencia";
+                break;
+            case "error":
+                tipo = "MostrarToastr";
+                tipomsg = "error";
+                break;
+        }
+        Task.Run(() => JsRuntime.InvokeVoidAsync(tipo, tipomsg, mensajeError));
+    }
+}

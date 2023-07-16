@@ -1,0 +1,54 @@
+{
+  "Version": 1,
+  "Hash": "7SuiIRtY3F9/97tJNU+ZaHOx5KjPYtzP3ZCNGs2hyRk=",
+  "Source": "AccesoDatos",
+  "BasePath": "_content/AccesoDatos",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "AccesoDatos\\wwwroot",
+      "Source": "AccesoDatos",
+      "ContentRoot": "C:\\SISTEMAS\\RecursosHumanosBo\\AccesoDatos\\wwwroot\\",
+      "BasePath": "_content/AccesoDatos",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "C:\\SISTEMAS\\RecursosHumanosBo\\AccesoDatos\\wwwroot\\background.png",
+      "SourceId": "AccesoDatos",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\SISTEMAS\\RecursosHumanosBo\\AccesoDatos\\wwwroot\\",
+      "BasePath": "_content/AccesoDatos",
+      "RelativePath": "background.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\background.png"
+    },
+    {
+      "Identity": "C:\\SISTEMAS\\RecursosHumanosBo\\AccesoDatos\\wwwroot\\exampleJsInterop.js",
+      "SourceId": "AccesoDatos",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\SISTEMAS\\RecursosHumanosBo\\AccesoDatos\\wwwroot\\",
+      "BasePath": "_content/AccesoDatos",
+      "RelativePath": "exampleJsInterop.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\exampleJsInterop.js"
+    }
+  ]
+}

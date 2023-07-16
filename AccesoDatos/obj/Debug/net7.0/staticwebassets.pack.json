@@ -1,0 +1,29 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\SISTEMAS\\RecursosHumanosBo\\AccesoDatos\\wwwroot\\background.png",
+      "PackagePath": "staticwebassets\\background.png"
+    },
+    {
+      "Id": "C:\\SISTEMAS\\RecursosHumanosBo\\AccesoDatos\\wwwroot\\exampleJsInterop.js",
+      "PackagePath": "staticwebassets\\exampleJsInterop.js"
+    },
+    {
+      "Id": "obj\\Debug\\net7.0\\staticwebassets\\msbuild.AccesoDatos.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net7.0\\staticwebassets\\msbuild.build.AccesoDatos.props",
+      "PackagePath": "build\\AccesoDatos.props"
+    },
+    {
+      "Id": "obj\\Debug\\net7.0\\staticwebassets\\msbuild.buildMultiTargeting.AccesoDatos.props",
+      "PackagePath": "buildMultiTargeting\\AccesoDatos.props"
+    },
+    {
+      "Id": "obj\\Debug\\net7.0\\staticwebassets\\msbuild.buildTransitive.AccesoDatos.props",
+      "PackagePath": "buildTransitive\\AccesoDatos.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

@@ -1,0 +1,146 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using System.Security.Policy;
+@using Modelo.Dto;
+@using Negocio.Interfaces;
+@*@using Microsoft.AspNetCore.Identity*@
+@*@using System.Security.Principal*@
+@*@using Microsoft.AspNetCore.Mvc.Razor*@
+@*@using System.Security.Claims*@
+
+@inject SignInManager<Rinku.Data.ApplicationUser> SignInManager
+@inject UserManager<Rinku.Data.ApplicationUser> UserManager
+
+@*@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager*@
+
+@inject MenuService menuService
+
+<nav class="navbar navbar-expand-sm navbar-dark bg-dark fixed-top">
+    @*"navbar navbar-expand-lg navbar-dark bg-dark mb-3 fixed-top">*@
+    <div class="container-fluid">
+        <div class="d-flex flex-grow-1">
+            <a class="navbar-brand text-light" style="margin-left:80px;"  asp-area="" asp-page="/Index">Rinku</a>
+            <button class="navbar-toggler" type="button" @onclick="ToggleNavMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="@NavMenuCssClass navbar-collapse d-sm-inline-flex flex-sm-row-reverse" @onclick="ToggleNavMenu">
+                <a class="navbar-brand" href="#">
+                    @*<img src="~/images/MiLogoTrans3.png" style="width:120px;" alt="">*@
+                </a>
+                @*               @if (SignInManager.IsSignedIn(User))
+                {*@
+                @if (menuList == null)
+                {
+                    <p><em>Loading...</em></p>
+                }
+                else
+                {
+@*                    La clase .mx-auto se puede usar para alinear los elementos con el centro de la barra de navegación.
+                    La clase .ms-auto se usa para alinear elementos a la derecha de la barra de navegación.
+                    La clase .me-auto se usa para alinear elementos a la izquierda de esa barra de navegación.*@
+                    <ul class="nav navbar-nav me-auto order-0 ">
+
+                        @foreach (var item in menuList)
+                        {
+                            if (!item.IsParent && item.ParentMenuId == -1)
+                            {
+                                @*<li class="nav-item"><a asp-area=@item.AREA_NAME asp-controller=@item.CONTROLLER_NAME asp-action=@item.ACTION_NAME>@item.M_NAME</a></li>*@
+                                <li class="nav-item">
+                                    <NavLink class="nav-link text-light" href="@item.PageName">
+                                        <span class="@item.IconName" aria-hidden="true"></span> @item.MenuName
+                                    </NavLink>
+                                </li>
+                            }
+                            else if (item.IsParent && item.ParentMenuId == -1)
+                            {
+                                var childItems = menuList.Where(p => p.ParentMenuId == item.MenuId).ToList();
+                                <li class="nav-item dropdown">
+                                    @*                                    <a class="dropdown-toggle" data-toggle="dropdown" asp-area=@item.AREA_NAME asp-controller=@item.CONTROLLER_NAME asp-action=@item.ACTION_NAME>
+                        @item.M_NAME
+                        <span class="caret"></span>
+                        </a>*@
+                                    <NavLink class="nav-link text-light dropdown-toggle" data-toggle="dropdown">
+                                        @*href="#"*@
+                                        @*@onclick="() => expandSubNavSettings = !expandSubNavSettings">*@
+                                        <span class="@item.IconName" aria-hidden="true"></span> @item.MenuName
+                                    </NavLink>
+                                    <ul class="dropdown-menu" role="menu">
+                                        @foreach (var ch in childItems)
+                                        {
+                                            if (!ch.IsParent)
+                                            {
+                                                @*<li><a class="dropdown-item" asp-area=@ch.AREA_NAME asp-controller=@ch.CONTROLLER_NAME asp-action=@ch.ACTION_NAME>@ch.M_NAME</a></li>*@
+                                                <li>
+                                                    <NavLink class="dropdown-item" href="@ch.PageName">
+                                                        <span class="@ch.IconName" aria-hidden="true"></span> @ch.MenuName
+                                                    </NavLink>
+                                                </li>
+                                            }
+                                            else
+                                            {
+                                                var childItems1 = menuList.Where(p1 => p1.ParentMenuId == ch.MenuId).ToList();
+                                                <li class="nav-item dropdown-submenu">
+                                                    @*                                                    <a class="dropdown-toggle" data-toggle="dropdown" asp-area=@ch.AREA_NAME asp-controller=@ch.CONTROLLER_NAME asp-action=@ch.ACTION_NAME>
+                                @ch.M_NAME
+                                <span class="caret"></span>
+                                </a>*@
+                                                    <NavLink class="dropdown-toggle" data-toggle="dropdown" href="@ch.PageName">
+                                                        <span class="@ch.IconName" aria-hidden="true"></span> @ch.MenuName
+                                                    </NavLink>
+                                                    <ul class="dropdown-menu" role="menu">
+                                                        @foreach (var ch1 in childItems1)
+                                                        {
+                                                            @*<li><a class="dropdown-item" asp-area=@ch1.AREA_NAME asp-controller=@ch1.CONTROLLER_NAME asp-action=@ch1.ACTION_NAME>@ch1.M_NAME</a></li>*@
+                                                            <NavLink class="dropdown-item" href="@ch1.PageName">
+                                                                <span class="@ch1.IconName" aria-hidden="true"></span> @ch1.MenuName
+                                                            </NavLink>
+                                                        }
+                                                    </ul>
+                                                </li>
+                                            }
+                                        }
+                                    </ul>
+                                </li>
+                            }
+                        }
+                    </ul>
+@*                    <li class="nav-item">
+                        <h3>Welcome, <b></b></h3>
+                        <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @Users.Identity?.Name!</a>
+                    </li>*@
+@*                    <li class="nav-item">
+                        <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="/" method="post">
+                            <button type="submit" class="nav-link btn btn-link text-dark">Logout</button>
+                        </form>
+                    </li>*@
+                    <div style="position:fixed;right:100px;top:5px;">
+                        <form method="post" action="Identity/Account/LogOut">
+                            <button type="submit" class="nav-link btn btn-link text-light">Log out</button>
+                        </form>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</nav>
+
+@code {
+    bool collapseNavMenu = true;
+    private bool expandSubNavSettings;
+    public IEnumerable<MenuDto> menuList = Enumerable.Empty<MenuDto>();
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    void ToggleNavMenu()
+    {
+        if (!expandSubNavSettings)
+        {
+            collapseNavMenu = !collapseNavMenu;
+
+        }
+    }
+
+    protected override async Task OnInitializedAsync() => menuList = await menuService.GetMenuData();
+    //string nom = @GetAuthenticationStateAsync.GetAuthenticationStateAsync().Result.User.Identity.Name;
+
+}

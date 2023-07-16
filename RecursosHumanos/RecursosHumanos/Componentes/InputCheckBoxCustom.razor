@@ -1,0 +1,35 @@
+﻿@if (!string.IsNullOrWhiteSpace(Label))
+{
+    <label class="form-control-label" for="@Id" style="@LabelStyle">@Label </label>
+}
+<InputCheckbox @bind-Value="isCheck"
+               class="form-check-inline"
+               style="width: 15px; height: 15px;"/>
+
+@code {
+    [Parameter]
+    public string CheckValueStr { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback<string> CheckValueStrChanged { get; set; }
+
+    [Parameter] public string Id { get; set; } = string.Empty;
+    [Parameter] public string Label { get; set; } = string.Empty;
+    [Parameter] public string LabelStyle { get; set; } = string.Empty;
+
+    private bool _isCheck;
+    public bool isCheck
+    {
+        get { return _isCheck; }
+        set
+        {
+            _isCheck = value;
+            CheckValueStrChanged.InvokeAsync(value.ToString());
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        isCheck = bool.Parse(CheckValueStr);
+    }
+}

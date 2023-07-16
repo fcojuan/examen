@@ -1,0 +1,49 @@
+﻿@using Rinku.Componentes
+@inject NavigationManager NavigationManager
+@inherits LayoutComponentBase
+
+<PageTitle>Rinku</PageTitle>
+
+<div class="page">
+    <main>
+        <article class="content px-4">
+            <AuthorizeView>
+                <Authorized>
+                    <ErrorBoundary Context=ex @ref="errorBoundary">
+                        <ChildContent>
+
+                            <body style="background-color:#C8CAC8">@*color de la pagina*@
+                                <NavMenu />
+
+                                <div class="container">
+                                    @Body
+                                </div>
+                            </body>
+
+                        </ChildContent>
+                        <ErrorContent>
+                            <div class="alert alert-danger">
+                                Oh No... Hay un error...
+                            </div>
+                            <div class="blazor-error-boundary">
+                               <div>@ex.Message</div>
+                               <div>@ex</div>          
+                            </div>
+                            <div>
+                                <button class="btn btn-primary" @onclick="()=>errorBoundary?.Recover()">Recover</button>
+                            </div>
+                        </ErrorContent>
+                    </ErrorBoundary>
+
+                </Authorized>
+                <NotAuthorized>
+                    <RedirectToLogin></RedirectToLogin>
+                </NotAuthorized>
+            </AuthorizeView>
+        </article>
+    </main>
+</div>
+
+@code {
+    private ErrorBoundary? errorBoundary;
+}

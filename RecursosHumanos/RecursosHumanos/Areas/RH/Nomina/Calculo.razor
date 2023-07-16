@@ -1,0 +1,169 @@
+﻿@page "/Nomina/Calculo"
+
+@using Modelo.Dto;
+@using Negocio.Interfaces;
+@using Rinku.Componentes
+
+@inject IGeneral<NominaDto> lService
+
+<CardBlazor ColorMarco="bg-warning" ColorTexto="#000000" Titulo="C A L C U L O  -  D E  -  N O M I N A">
+    <Contenido>
+
+        <EditForm Model="@modelo" >
+            <DataAnnotationsValidator />
+            
+                <div class="row">
+                    <div class="btn-toolbar" style="display: flex;justify-content: center;">
+                        <div class="form-group col-md-2" style="padding-right:5px !important;padding-left:5px !important;">
+                            <InputDateCustom Label="Fecha Inicial" LabelStyle="font-weight:bold;" @bind-Value="@modelo.FechaIni"
+                                             BorderDiseño="1px solid" ColorBorder="#48C9B0" tabindex="3" />
+                            <ValidationMessage For="@(() => modelo.FechaIni)" />
+                        </div>
+                        <div class="form-group col-md-2" style="padding-right:5px !important;padding-left:5px !important;">
+                            <InputDateCustom Label="Fecha Final" LabelStyle="font-weight:bold;" @bind-Value="@modelo.FechaFin"
+                                             BorderDiseño="1px solid" ColorBorder="#48C9B0" tabindex="3" />
+                            <ValidationMessage For="@(() => modelo.FechaFin)" />
+                        </div>
+                    </div>
+                </div>
+            <div class="row">
+                <div class="btn-toolbar" style="display: flex;justify-content: center;">
+                    <div class="form-group col-md-2" style="padding-right:5px !important;padding-left:5px !important;margin-top:23px;">
+                        <a href="/" class="btn btn-primary" role="button">
+                            <i class="fas fa-user-plus"></i>
+                            Salir
+                        </a>
+                    </div>
+                    <div class="form-group col-md-2" style="padding-right:5px !important;padding-left:5px !important;margin-top:23px;">
+                        <button type="button" class="btn btn-success" title="Guardar" @onclick="@(()=>GeneraNomina())">
+                            <i class="oi oi-spreadsheet"></i> Generar</button>
+                    </div>
+                </div>
+            </div>
+            
+        </EditForm>
+
+        @if (DatosObj != null)
+        {
+            @if (DatosObj.Count < 1)
+            {
+                if (@isLoading)
+                {
+                    <div class="spinner"></div>
+                }
+                <p>Sin Información......</p>
+            }
+            else
+            {
+                <GridBlazor Title="" Items="@DatosObj" Context="Datos">
+                    <HeaderTemplate>
+                        <th class="th-sm">Codigo</th>
+                        <th class="th-sm">Nombre</th>
+                        <th class="th-sm" >Sueldo Total</th>
+                        <th class="th-sm" >Bono x Entrega</th>
+                        <th class="th-sm">Bono X Hora</th>
+                        <th class="th-sm">Vales</th>
+                        <th class="th-sm">SubTotal</th>
+                        <th class="th-sm">ISR</th>
+                        <th class="th-sm">ISR Extra</th>
+                        <th class="th-sm">Total</th>
+                    </HeaderTemplate>
+                    <RowTemplate>
+                        <td class="text-left">@Datos.Codigo</td>
+                        <td class="text-left" style="text-align:left">@Datos.Nombre</td>
+                        <td class="text-left" style="text-align:right">@Datos.SueldoTotal.ToString("###,##0.00")</td>
+                        <td class="text-left" style="text-align:right">@Datos.BonoEntregaTotal.ToString("###,##0.00")</td>
+                        <td class="text-left" style="text-align:right">@Datos.BonoHoraTotal.ToString("###,##0.00")</td>
+                        <td class="text-left" style="text-align:right">@Datos.ValesTotal.ToString("###,##0.00")</td>
+                        <td class="text-left" style="text-align:right">@Datos.SumaTotal.ToString("###,##0.00")</td>
+                        <td class="text-left" style="text-align:right">@Datos.ISR9.ToString("###,##0.00")</td>
+                        <td class="text-left" style="text-align:right">@Datos.ISRMASDesc.ToString("###,##0.00")</td>
+                        <td class="text-left" style="text-align:right">@Datos.GranTotal.ToString("###,##0.00")</td>
+                    </RowTemplate>
+                </GridBlazor>
+            }
+        }
+
+
+    </Contenido>
+</CardBlazor>
+
+@code {
+    private bool isLoading = true;
+    FiltroReporteDto modelo = new FiltroReporteDto();
+    private List<NominaDto> DatosObj = new();
+
+    private async Task GeneraNomina()
+    {
+
+        await Task.Run(() => LoadList());
+
+        this.StateHasChanged();
+        string[] lParam = new string[] { "@FechaIni", "@FechaFin" };
+        string[] lVar = new string[] { modelo.FechaIni.ToString("yyyy-MM-dd"), modelo.FechaFin.ToString("yyyy-MM-dd") };
+
+        var parametrosEnvio = await Task.Run(() => lService.CreaDiccionario(lParam, lVar));
+        int valor = await lService.BDAccion("c_spCalculoNomina", parametrosEnvio);
+        if (valor == 0)
+        {
+            await Task.Run(() => LoadList());
+            MostrarMensaje("correcto", "spMovimiento");
+        }
+    }
+
+    private async Task LoadList()
+    {
+        try
+        {
+            string[] lParam = new string[] { "@FechaIni", "@FechaFin" };
+            string[] lVar = new string[] { modelo.FechaIni.ToString("yyyy-MM-dd"), modelo.FechaFin.ToString("yyyy-MM-dd") };
+            var parametrosEnvio = await Task.Run(() => lService.CreaDiccionario(lParam, lVar));
+
+            DatosObj = await lService.ListAll("c_spCalculoNomina", parametrosEnvio);
+
+            isLoading = false;
+        }
+        catch (Exception e)
+        {
+            MostrarMensaje("error", e.Message);
+        }
+    }
+
+
+    private void MostrarMensaje(string opc, string mensajeError, int valor = -1)
+    {
+        string tipo = string.Empty;
+        string tipomsg = string.Empty;
+
+        if (valor == 1) { opc = "error"; }
+
+        switch (opc)
+        {
+            case "save":
+                tipo = "MostrarSwal";
+                tipomsg = "success";
+                mensajeError = "Información Guardada";
+                break;
+            case "correcto":
+                tipo = "MostrarToastr";
+                tipomsg = "success";
+                mensajeError = "Proceso Correcto";
+                break;
+            case "info":
+                tipo = "MostrarToastr";
+                tipomsg = "info";
+                mensajeError = "Informativo";
+                break;
+            case "warning":
+                tipo = "MostrarToastr";
+                tipomsg = "warning";
+                mensajeError = "Advertencia";
+                break;
+            case "error":
+                tipo = "MostrarToastr";
+                tipomsg = "error";
+                break;
+        }
+        Task.Run(() => JsRuntime.InvokeVoidAsync(tipo, tipomsg, mensajeError));
+    }
+}

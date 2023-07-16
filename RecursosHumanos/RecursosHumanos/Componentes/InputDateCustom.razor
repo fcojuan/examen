@@ -1,0 +1,86 @@
+﻿@using System.Globalization
+@using System
+@using System.Linq.Expressions;
+
+@typeparam TValue
+
+@*<div class="form-group">*@
+    @if (!string.IsNullOrWhiteSpace(Label))
+    {
+        <label class="form-control-label" for="@Idlabel" style="@LabelStyle">@Label</label>
+    }
+    <input  id="@Id"
+            type="date"
+            class="form-control"
+            value="@FormatValueAsString(Value)"
+            format-value="@DateFormat"
+            style="border:@BorderDiseño @ColorBorder;"
+            tabindex="@tabindex"
+            disabled="@Desactivar"
+           @onchange="@OnChange" 
+           @onfocusout="@((args) => OnFocusOut(args))" />
+    
+@*</div>*@
+
+@code {
+    private const string DateFormat = "yyyy-MM-dd";
+    CultureInfo provider = CultureInfo.InvariantCulture;
+    private TValue _value;
+    [Parameter] public string Idlabel { get; set; } = string.Empty;
+    [Parameter] public string Label { get; set; } = string.Empty;
+    [Parameter] public string Id { get; set; } = string.Empty;
+    [Parameter] public string LabelStyle { get; set; } = string.Empty;
+    [Parameter] public string BorderDiseño { get; set; } = string.Empty;
+    [Parameter] public string ColorBorder { get; set; } = string.Empty;
+    [Parameter] public string tabindex { get; set; } = string.Empty;
+    [Parameter] public bool Desactivar { get; set; } = false;
+    [Parameter] public EventCallback<FocusEventArgs> FocusOut { get; set; }
+    [Parameter]
+    public TValue Value
+    {
+        get
+        {
+            return _value;
+        }
+        set
+        {
+            if (EqualityComparer<TValue>.Default.Equals(value, _value))
+            {
+                return;
+            }
+            _value = value;
+            ValueChanged.InvokeAsync(value);
+
+        }
+    }
+
+    [Parameter] public EventCallback<TValue> ValueChanged { get; set; }
+    private void OnChange(ChangeEventArgs args)
+    {
+        try
+        {
+            Value =
+                (TValue)(object)
+                DateTime
+                .ParseExact(args.Value.ToString(), DateFormat, provider);
+        }
+        catch
+        {
+            Value = default(TValue); // not sure you want this
+        }
+    }
+    protected string FormatValueAsString(TValue? value)
+    {
+        switch (value)
+        {
+            case DateTime dateTimeValue:
+                var r = BindConverter.FormatValue(dateTimeValue, DateFormat, provider);
+                return r;
+            default:
+                return DateTime.Now.ToString("yyy-MM-dd"); /*string.Empt*/;
+        }
+    }
+
+    void OnFocusOut(FocusEventArgs args) => FocusOut.InvokeAsync();
+}
+

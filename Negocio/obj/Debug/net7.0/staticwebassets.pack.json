@@ -1,0 +1,29 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\SISTEMAS\\RecursosHumanosBo\\Negocio\\wwwroot\\background.png",
+      "PackagePath": "staticwebassets\\background.png"
+    },
+    {
+      "Id": "C:\\SISTEMAS\\RecursosHumanosBo\\Negocio\\wwwroot\\exampleJsInterop.js",
+      "PackagePath": "staticwebassets\\exampleJsInterop.js"
+    },
+    {
+      "Id": "obj\\Debug\\net7.0\\staticwebassets\\msbuild.Negocio.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net7.0\\staticwebassets\\msbuild.build.Negocio.props",
+      "PackagePath": "build\\Negocio.props"
+    },
+    {
+      "Id": "obj\\Debug\\net7.0\\staticwebassets\\msbuild.buildMultiTargeting.Negocio.props",
+      "PackagePath": "buildMultiTargeting\\Negocio.props"
+    },
+    {
+      "Id": "obj\\Debug\\net7.0\\staticwebassets\\msbuild.buildTransitive.Negocio.props",
+      "PackagePath": "buildTransitive\\Negocio.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

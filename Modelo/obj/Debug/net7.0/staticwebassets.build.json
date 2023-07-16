@@ -1,0 +1,54 @@
+{
+  "Version": 1,
+  "Hash": "5GCArEFt6eWO2Fqq/36nCweHFgI5xnYN+AnkaWsHSwY=",
+  "Source": "Modelo",
+  "BasePath": "_content/Modelo",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "Modelo\\wwwroot",
+      "Source": "Modelo",
+      "ContentRoot": "C:\\SISTEMAS\\RecursosHumanosBo\\Modelo\\wwwroot\\",
+      "BasePath": "_content/Modelo",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "C:\\SISTEMAS\\RecursosHumanosBo\\Modelo\\wwwroot\\background.png",
+      "SourceId": "Modelo",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\SISTEMAS\\RecursosHumanosBo\\Modelo\\wwwroot\\",
+      "BasePath": "_content/Modelo",
+      "RelativePath": "background.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\background.png"
+    },
+    {
+      "Identity": "C:\\SISTEMAS\\RecursosHumanosBo\\Modelo\\wwwroot\\exampleJsInterop.js",
+      "SourceId": "Modelo",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\SISTEMAS\\RecursosHumanosBo\\Modelo\\wwwroot\\",
+      "BasePath": "_content/Modelo",
+      "RelativePath": "exampleJsInterop.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\exampleJsInterop.js"
+    }
+  ]
+}

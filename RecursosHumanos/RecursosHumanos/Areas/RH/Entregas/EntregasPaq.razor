@@ -1,0 +1,249 @@
+﻿@page "/Entregas/EntregasPaq"
+@attribute [Authorize]
+
+@using Modelo.Dto;
+@using Modelo.Entity;
+@using Modelo.Mapeo;
+@using Negocio.Interfaces;
+@using System.Data;
+@using System.Globalization;
+@using System.Reflection;
+@using Rinku.Componentes
+
+@inject IGeneral<EntregasPaqDto> lService
+
+
+<CardBlazor ColorMarco="bg-warning" ColorTexto="#000000" Titulo=@Titulo>
+    <Contenido>
+
+        <EditForm Model="@modelo" OnValidSubmit="SaveModelo">
+            <DataAnnotationsValidator />
+            <div class="btn-toolbar" style="display: flex;justify-content: center;">
+                <div class="form-group">
+                    <a href="/" class="btn btn-primary" role="button">
+                        <i class="fas fa-user-plus"></i>
+                        Salir
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="input-group d-inline-flex">
+                    <div class="form-group col-md-1" style="padding-left:5px !important;padding-right:5px !important;">
+                        <InputTextCustom Label="Codigo" LabelStyle="font-weight:bold;" Id="elemetnToFocus" @bind-Value="modelo.Codigo" ValidarEnter=true
+                                         ValidationFor="@(() => modelo.Codigo)" BorderDiseño="1px solid" ColorBorde="#48C9B0" tabindex="1" FocusOut="@BuscarCodigo" />
+                    </div>
+                    <div class="form-group col-md-3" style="padding-left:5px !important;padding-right:5px !important;">
+                        <InputTextCustom Label="Nombre" LabelStyle="font-weight:bold;" Id="elemetnToFocus" @bind-Value="modelo.Nombre" ValidarEnter=true
+                                         ValidationFor="@(() => modelo.Nombre)" BorderDiseño="1px solid" ColorBorde="#48C9B0" tabindex="-1" Desactivar=true />
+                    </div>
+                    <div class="form-group col-md-2" style="padding-left:5px !important;padding-right:5px !important;">
+                        <InputTextCustom Label="Rol" LabelStyle="font-weight:bold;" Id="elemetnToFocus" @bind-Value="modelo.Rol" ValidarEnter=true
+                                         ValidationFor="@(() => modelo.Rol)" BorderDiseño="1px solid" ColorBorde="#48C9B0" tabindex="-1" Desactivar=true />
+                    </div>
+                   <div class="form-group col-xs-12 col-md-2" style="padding-right:5px !important;padding-left:5px !important;">
+                        <label for="PaqEntregado" class="control-label col-md-12" style="font-weight:bold;"># Paquete Entregado</label>
+                        <InputNumber form="BonoHora" class="form-control" style="text-align:right;border:1px solid #48C9B0;" Id="elemetnToFocus2"
+                                     @bind-Value="modelo.PaqEntregado" @bind-Value:format="###0.00" autocomplete="off" tabindex="2"></InputNumber>
+                        <ValidationMessage For="@(() => modelo.PaqEntregado)" />
+                    </div>
+                    <div class="form-group col-md-2" style="padding-right:5px !important;padding-left:5px !important;">
+                        <InputDateCustom Label="Fecha Alta" LabelStyle="font-weight:bold;" @bind-Value="@modelo.Fecha"
+                                         BorderDiseño="1px solid" ColorBorder="#48C9B0" tabindex="3" FocusOut="SaveModelo" />
+                        <ValidationMessage For="@(() => modelo.Fecha)" />
+                    </div>
+                     <div class="form-group col-md-2" style="padding-right:5px !important;padding-left:5px !important;margin-top:23px;">
+                    <button type="submit" class="btn btn-success" title="Guardar"><i class="oi oi-spreadsheet"></i> Guardar</button>
+                    </div>
+                </div>
+            </div>
+
+        </EditForm>
+        @if (DatosObj != null)
+        {
+            @if (DatosObj.Count < 1)
+            {
+                if (@isLoading)
+                {
+                    <div class="spinner"></div>
+                }
+                <p>Sin Información......</p>
+            }
+            else
+            {
+                <GridBlazor Title="" Items="@DatosObj" Context="Datos">
+                    <HeaderTemplate>
+                        <th class="th-sm"></th>
+                        <th class="th-sm">Codigo</th>
+                        <th class="th-sm">Nombre</th>
+                        <th class="th-sm">Puesto</th>
+                        <th class="th-sm">Pauete Entregados</th>
+                        <th class="th-sm">Fecha</th>
+                    </HeaderTemplate>
+                    <RowTemplate>
+                        <td>
+                            <button class="btn btn-outline-danger btn-sm" data-toggle="tooltip" data-placement="top" title="Baja Registro"
+                            @onclick="@(()=>DeleteRow(@Datos.Id))">
+                                <i class="oi oi-trash"></i>
+                            </button>
+                        </td>
+                        <td class="text-left">@Datos.Codigo</td>
+                        <td class="text-left">@Datos.NombreCompleto</td>
+                        <td class="text-left">@Datos.Rol</td>
+                        <td class="text-left">@Datos.PaqEntregado</td>
+                        <td class="text-left">@Datos.Fecha</td>
+                    </RowTemplate>
+                </GridBlazor>
+            }
+        }
+
+
+
+
+    </Contenido>
+</CardBlazor>
+
+@code {
+    string[] lParam = { };
+    string[] lVar = { };
+    private bool isLoading = true;
+    protected string Titulo = "E N T R E G A S";
+    protected EntregasPaqDto modelo = new();
+    private List<EntregasPaqDto> DatosObj = new();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+
+        await Task.Run(() => LoadList());
+
+        this.StateHasChanged();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JsRuntime.InvokeVoidAsync("focusElement", "elemetnToFocus");//poner focus en el primer input
+        }
+    }
+
+    protected async Task SaveModelo()
+    {
+        try
+        {
+            int valor = await GuardarDatos();
+
+            if (valor == 0)
+            {
+                await Task.Run(() => LoadList());
+                MostrarMensaje("correcto", "spMovimiento");
+            }
+
+
+            this.StateHasChanged();
+
+        }
+        catch (Exception e)
+        {
+            await JsRuntime.InvokeVoidAsync("MostrarToastr", "error", e.Message);
+        }
+
+    }
+
+    private async Task LoadList()
+    {
+        try
+        {
+            string[] lParam = new string[] { "@Opc", "@Filtro" };
+            string[] lVar = new string[] { "3", DateTime.Now.ToString("yyyy-MM-dd") };
+            var parametrosEnvio = await Task.Run(() => lService.CreaDiccionario(lParam, lVar));
+
+            DatosObj = await lService.ListAll("c_spMovimiento", parametrosEnvio);
+
+            isLoading = false;
+        }
+        catch (Exception e)
+        {
+            MostrarMensaje("error", e.Message);
+        }
+    }
+
+    private async Task<int> GuardarDatos()
+    {
+        var variable = MyAutoMapper<EntregasPaqDto, EntregasPaqE>.Map(modelo);
+
+        int valor = await Task.Run(() => lService.InsertUpdateModelo("c_spMovimiento", variable));
+
+        return valor;
+    }
+
+    private void Cancel()
+    {
+        NavManager.NavigateTo("/");
+    }
+    //-------------------------------------------------------------------------
+    //-------------------------FUNCIONES
+    private async Task BuscarCodigo()
+    {
+        string[] lParam = new string[] { "@Opc","@Filtro" };
+        string[] lVar = new string[] { "4", "e.Codigo="+modelo.Codigo };
+
+        var parametrosEnvio = await Task.Run(() => lService.CreaDiccionario(lParam, lVar));
+        modelo = await lService.BDBuscarReg("c_spEmpleado", parametrosEnvio);
+
+    }
+
+    private async Task DeleteRow(int id)
+    {
+        string[] lParam = new string[] { "@Opc", "@Id" };
+        string[] lVar = new string[] { "2", id.ToString() };
+
+        var parametrosEnvio = await Task.Run(() => lService.CreaDiccionario(lParam, lVar));
+        int valor = await lService.BDAccion("c_spMovimiento", parametrosEnvio);
+        if (valor == 0)
+        {
+            await Task.Run(() => LoadList());
+            MostrarMensaje("correcto", "spMovimiento");
+        }
+    }
+
+    private void MostrarMensaje(string opc, string mensajeError, int valor = -1)
+    {
+        string tipo = string.Empty;
+        string tipomsg = string.Empty;
+
+        if (valor == 1) { opc = "error"; }
+
+        switch (opc)
+        {
+            case "save":
+                tipo = "MostrarSwal";
+                tipomsg = "success";
+                mensajeError = "Información Guardada";
+                break;
+            case "correcto":
+                tipo = "MostrarToastr";
+                tipomsg = "success";
+                mensajeError = "Proceso Correcto";
+                break;
+            case "info":
+                tipo = "MostrarToastr";
+                tipomsg = "info";
+                mensajeError = "Informativo";
+                break;
+            case "warning":
+                tipo = "MostrarToastr";
+                tipomsg = "warning";
+                mensajeError = "Advertencia";
+                break;
+            case "error":
+                tipo = "MostrarToastr";
+                tipomsg = "error";
+                break;
+        }
+        Task.Run(() => JsRuntime.InvokeVoidAsync(tipo, tipomsg, mensajeError));
+    }
+
+}

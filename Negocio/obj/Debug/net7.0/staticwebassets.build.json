@@ -1,0 +1,159 @@
+{
+  "Version": 1,
+  "Hash": "XLd9nNKyXDdUI3jwHAZ29A080iHFyPKC2NYM70BK6Kk=",
+  "Source": "Negocio",
+  "BasePath": "_content/Negocio",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [
+    {
+      "Identity": "C:\\SISTEMAS\\RecursosHumanosBo\\AccesoDatos\\AccesoDatos.csproj",
+      "Version": 2,
+      "Source": "AccesoDatos",
+      "GetPublishAssetsTargets": "ComputeReferencedStaticWebAssetsPublishManifest;GetCurrentProjectPublishStaticWebAssetItems",
+      "AdditionalPublishProperties": "Configuration=Debug;Platform=AnyCPU",
+      "AdditionalPublishPropertiesToRemove": "TargetFramework;RuntimeIdentifier;SelfContained",
+      "GetBuildAssetsTargets": "GetCurrentProjectBuildStaticWebAssetItems",
+      "AdditionalBuildProperties": "Configuration=Debug;Platform=AnyCPU",
+      "AdditionalBuildPropertiesToRemove": "TargetFramework;RuntimeIdentifier;SelfContained"
+    },
+    {
+      "Identity": "C:\\SISTEMAS\\RecursosHumanosBo\\Modelo\\Modelo.csproj",
+      "Version": 2,
+      "Source": "Modelo",
+      "GetPublishAssetsTargets": "ComputeReferencedStaticWebAssetsPublishManifest;GetCurrentProjectPublishStaticWebAssetItems",
+      "AdditionalPublishProperties": "Configuration=Debug;Platform=AnyCPU",
+      "AdditionalPublishPropertiesToRemove": "TargetFramework;RuntimeIdentifier;SelfContained",
+      "GetBuildAssetsTargets": "GetCurrentProjectBuildStaticWebAssetItems",
+      "AdditionalBuildProperties": "Configuration=Debug;Platform=AnyCPU",
+      "AdditionalBuildPropertiesToRemove": "TargetFramework;RuntimeIdentifier;SelfContained"
+    }
+  ],
+  "DiscoveryPatterns": [
+    {
+      "Name": "AccesoDatos\\wwwroot",
+      "Source": "AccesoDatos",
+      "ContentRoot": "C:\\SISTEMAS\\RecursosHumanosBo\\AccesoDatos\\wwwroot\\",
+      "BasePath": "_content/AccesoDatos",
+      "Pattern": "**"
+    },
+    {
+      "Name": "Modelo\\wwwroot",
+      "Source": "Modelo",
+      "ContentRoot": "C:\\SISTEMAS\\RecursosHumanosBo\\Modelo\\wwwroot\\",
+      "BasePath": "_content/Modelo",
+      "Pattern": "**"
+    },
+    {
+      "Name": "Negocio\\wwwroot",
+      "Source": "Negocio",
+      "ContentRoot": "C:\\SISTEMAS\\RecursosHumanosBo\\Negocio\\wwwroot\\",
+      "BasePath": "_content/Negocio",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "C:\\SISTEMAS\\RecursosHumanosBo\\AccesoDatos\\wwwroot\\background.png",
+      "SourceId": "AccesoDatos",
+      "SourceType": "Project",
+      "ContentRoot": "C:\\SISTEMAS\\RecursosHumanosBo\\AccesoDatos\\wwwroot\\",
+      "BasePath": "_content/AccesoDatos",
+      "RelativePath": "background.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\background.png"
+    },
+    {
+      "Identity": "C:\\SISTEMAS\\RecursosHumanosBo\\AccesoDatos\\wwwroot\\exampleJsInterop.js",
+      "SourceId": "AccesoDatos",
+      "SourceType": "Project",
+      "ContentRoot": "C:\\SISTEMAS\\RecursosHumanosBo\\AccesoDatos\\wwwroot\\",
+      "BasePath": "_content/AccesoDatos",
+      "RelativePath": "exampleJsInterop.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\exampleJsInterop.js"
+    },
+    {
+      "Identity": "C:\\SISTEMAS\\RecursosHumanosBo\\Modelo\\wwwroot\\background.png",
+      "SourceId": "Modelo",
+      "SourceType": "Project",
+      "ContentRoot": "C:\\SISTEMAS\\RecursosHumanosBo\\Modelo\\wwwroot\\",
+      "BasePath": "_content/Modelo",
+      "RelativePath": "background.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\background.png"
+    },
+    {
+      "Identity": "C:\\SISTEMAS\\RecursosHumanosBo\\Modelo\\wwwroot\\exampleJsInterop.js",
+      "SourceId": "Modelo",
+      "SourceType": "Project",
+      "ContentRoot": "C:\\SISTEMAS\\RecursosHumanosBo\\Modelo\\wwwroot\\",
+      "BasePath": "_content/Modelo",
+      "RelativePath": "exampleJsInterop.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\exampleJsInterop.js"
+    },
+    {
+      "Identity": "C:\\SISTEMAS\\RecursosHumanosBo\\Negocio\\wwwroot\\background.png",
+      "SourceId": "Negocio",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\SISTEMAS\\RecursosHumanosBo\\Negocio\\wwwroot\\",
+      "BasePath": "_content/Negocio",
+      "RelativePath": "background.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\background.png"
+    },
+    {
+      "Identity": "C:\\SISTEMAS\\RecursosHumanosBo\\Negocio\\wwwroot\\exampleJsInterop.js",
+      "SourceId": "Negocio",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\SISTEMAS\\RecursosHumanosBo\\Negocio\\wwwroot\\",
+      "BasePath": "_content/Negocio",
+      "RelativePath": "exampleJsInterop.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\exampleJsInterop.js"
+    }
+  ]
+}

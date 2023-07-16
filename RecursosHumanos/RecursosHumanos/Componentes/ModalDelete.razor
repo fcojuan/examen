@@ -1,0 +1,70 @@
+﻿@if (Show)
+{
+    <div class="modal facde show" id=@NameModal style="display:block;background-color: rgba(10,10,10,.8);" arial-modal="true" role="dialog">
+        <div class="modal-dialog @Tamaño">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" style="color:darkred">@Title</h5>
+                    <button type="button" class="close" @onclick="@ModalCancel" ></button>
+                </div>
+                <div class="modal-body">
+                        @ModalBody
+                </div>
+                <div class="modal-footer">
+                    @switch (DialogType)
+                    {
+                        case ModalDialogType.Ok:
+                            <button type="button" class="btn btn-primary" @onclick="@ModalOk">OK</button>
+                            break;
+                        case ModalDialogType.OkCancel:
+                            <button type="button" class="btn btn-secondary" @onclick="@ModalCancel">Cancel</button>                
+                            <button type="button" class="btn btn-primary" @onclick="@ModalOk">OK</button>
+                            break;
+                        case ModalDialogType.DeleteCancel:
+                            <button type="button" class="btn btn-secondary" @onclick="@ModalCancel">Cancel</button>               
+                            <button type="button" class="btn btn-danger" @onclick="@ModalOk">Delete</button>
+                            break;
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+@code{
+    [Parameter] public bool Show { get; set; }
+
+    [Parameter] public string NameModal { get; set; }
+
+    [Parameter] public string Tamaño { get; set; } //modal-xl   modal-lg  modal-sm  o mandar parametro vacio es un tamaño medio(se adapta a los controles)
+
+    [Parameter] public string Title { get; set; }
+
+    [Parameter] public RenderFragment ModalBody { get; set; }
+
+    [Parameter] public EventCallback<bool> OnClose { get; set; }
+
+    [Parameter] public ModalDialogType DialogType { get; set; }
+
+    [Parameter]public EventCallback<bool> OnValidSubmit { get; set; }
+    [Parameter]public EventCallback<bool> OnInValidSubmit { get; set; }
+    //private EditContext _editContext;
+
+    private Task ModalCancel()
+    {
+        return OnClose.InvokeAsync(false);
+    }
+
+    private Task ModalOk()
+    {
+        return OnClose.InvokeAsync(true);
+    }
+
+    public enum ModalDialogType
+    {
+        Ok,
+        OkCancel,
+        GuardarCancel,
+        DeleteCancel
+    }
+
+}

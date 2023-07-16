@@ -1,0 +1,67 @@
+﻿@using System.Linq.Expressions;
+@inherits InputBase<string>
+@inject IJSRuntime JsRuntime
+
+@*<div class="form-control-wrapper">*@
+    @if (!string.IsNullOrWhiteSpace(Label))
+    {
+        <label class="form-control-label" for="@Id" style="@LabelStyle">@Label</label>
+    }
+<input id="@Id" class="form-control @CssClass" style="border:@BorderDiseño @ColorBorde;"
+       @bind="@CurrentValue"
+       autocomplete="@autocompletar" disabled="@Desactivar" tabindex="@tabindex"
+       @onkeydown="@keydown"
+       @onclick="@((args) => OnClick(args))"
+       @onfocusout="@((args) => OnFocusOut(args))" />
+
+       @if (ValidationFor!=null){
+            <div class="form-control-validation">
+                <ValidationMessage For="@ValidationFor" />
+            </div>
+       }
+
+@*</div>*@
+
+@code {
+    //[Parameter, EditorRequired]
+    [Parameter] public Expression<Func<string>> ValidationFor { get; set; } = default!;
+    [Parameter] public string Id { get; set; } = string.Empty;
+    [Parameter] public string Label { get; set; } = string.Empty;
+    [Parameter] public string LabelStyle { get; set; } = string.Empty;
+    [Parameter] public string BorderDiseño { get; set; } = string.Empty;
+    [Parameter] public string ColorBorde { get; set; } = string.Empty;
+    [Parameter] public bool ValidarEnter { get; set; } = false;
+    [Parameter] public string tabindex { get; set; } = string.Empty;
+    [Parameter] public string autocompletar { get; set; } = "Disabled";//on
+    [Parameter] public bool Desactivar { get; set; } = false;
+    [Parameter] public int ceroCantidad { get; set; } = 0;
+    [Parameter] public EventCallback<MouseEventArgs> Click { get; set; }
+    [Parameter] public EventCallback<FocusEventArgs> FocusOut { get; set; }
+
+    string KeyPressed = "";
+
+    protected override bool TryParseValueFromString(string? value, out string result, out string validationErrorMessage)
+    {
+        result = value;
+        validationErrorMessage = null;
+        return true;
+    }
+
+
+    void OnClick(MouseEventArgs args) => Click.InvokeAsync(args);
+
+    void OnFocusOut(FocusEventArgs args) => FocusOut.InvokeAsync();
+
+    public void keydown(Microsoft.AspNetCore.Components.Web.KeyboardEventArgs args)
+    {
+        if (ValidarEnter)
+        {
+            KeyPressed = "Key Pressed is " + args.Key;
+            if (args.Key == "Enter")
+            {
+                JsRuntime.InvokeVoidAsync("onFocus", "ItmNo");
+            }
+        }
+
+    }
+}

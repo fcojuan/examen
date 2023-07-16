@@ -1,0 +1,54 @@
+{
+  "Version": 1,
+  "Hash": "5TG0oXf0By/CNk8K4z6M5FmYAKOzL/v+qG1wTEnKu1k=",
+  "Source": "Contracts",
+  "BasePath": "_content/Contracts",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "Contracts\\wwwroot",
+      "Source": "Contracts",
+      "ContentRoot": "C:\\SISTEMAS\\RecursosHumanosBo\\RecursosHumanos\\Contracts\\wwwroot\\",
+      "BasePath": "_content/Contracts",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "C:\\SISTEMAS\\RecursosHumanosBo\\RecursosHumanos\\Contracts\\wwwroot\\background.png",
+      "SourceId": "Contracts",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\SISTEMAS\\RecursosHumanosBo\\RecursosHumanos\\Contracts\\wwwroot\\",
+      "BasePath": "_content/Contracts",
+      "RelativePath": "background.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\background.png"
+    },
+    {
+      "Identity": "C:\\SISTEMAS\\RecursosHumanosBo\\RecursosHumanos\\Contracts\\wwwroot\\exampleJsInterop.js",
+      "SourceId": "Contracts",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\SISTEMAS\\RecursosHumanosBo\\RecursosHumanos\\Contracts\\wwwroot\\",
+      "BasePath": "_content/Contracts",
+      "RelativePath": "exampleJsInterop.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\exampleJsInterop.js"
+    }
+  ]
+}

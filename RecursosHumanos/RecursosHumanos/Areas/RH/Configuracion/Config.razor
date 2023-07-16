@@ -1,0 +1,179 @@
+﻿@page "/cConfiguracion/Config"
+@attribute [Authorize]
+
+@using Modelo.Dto;
+@using Modelo.Entity;
+@using Modelo.Mapeo;
+@using Negocio.Interfaces;
+@using System.Data;
+@using System.Globalization;
+@using System.Reflection;
+@using Rinku.Componentes
+
+@inject IGeneral<ConfigDto> lService
+
+
+<CardBlazor ColorMarco="bg-warning" ColorTexto="#000000" Titulo=@Titulo>
+    <Contenido>
+
+        <EditForm Model="@modelo" OnValidSubmit="SaveModelo">
+            <DataAnnotationsValidator />  
+            <div class="btn-toolbar" style="display: flex;justify-content: center;">
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success" title="Guardar"><i class="oi oi-spreadsheet"></i> Guardar</button>
+                    <a href="/" class="btn btn-primary" role="button">
+                        <i class="fas fa-user-plus"></i>
+                        Salir
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="input-group d-inline-flex">
+                    <div class="form-group col-md-1" style="padding-left:5px !important;padding-right:5px !important;">
+                            <InputTextCustom Label="Id" LabelStyle="font-weight:bold;" Id="elemetnToFocus" @bind-Value="modelo.Id" ValidarEnter=true
+                                             ValidationFor="@(() => modelo.Id)" BorderDiseño="1px solid" ColorBorde="#48C9B0" tabindex="-1"  Desactivar=true />
+                    </div>
+                    <div class="form-group col-xs-12 col-md-2" style="padding-right:5px !important;padding-left:5px !important;">
+                        <label for="BonoPorEntrega" class="control-label col-md-12" style="font-weight:bold;">Bono Por Entrega</label>
+                            <InputNumber form="BonoHora" class="form-control" style="text-align:right;border:1px solid #48C9B0;"
+                                                 @bind-Value="modelo.BonoPorEntrega" @bind-Value:format="##,###,###0.00" autocomplete="off"
+                                                 tabindex="1"></InputNumber>
+                            <ValidationMessage For="@(() => modelo.BonoPorEntrega)" />
+                    </div>
+                    <div class="form-group col-xs-12 col-md-1" style="padding-right:5px !important;padding-left:5px !important;">
+                        <label for="ISR" class="control-label col-md-12" style="font-weight:bold;">ISR</label>
+                        <InputNumber form="ISR" class="form-control" style="text-align:right;border:1px solid #48C9B0;"
+                                     @bind-Value="modelo.ISR" @bind-Value:format="##,###,###0.00" autocomplete="off"
+                                     tabindex="1"></InputNumber>
+                        <ValidationMessage For="@(() => modelo.ISR)" />
+                    </div>
+                    <div class="form-group col-xs-12 col-md-2" style="padding-right:5px !important;padding-left:5px !important;">
+                        <label for="MontoExtraISR" class="control-label col-md-12" style="font-weight:bold;">Monto Extra Desc .ISR</label>
+                        <InputNumber form="MontoExtraISR" class="form-control" style="text-align:right;border:1px solid #48C9B0;"
+                                     @bind-Value="modelo.MontoExtraISR" @bind-Value:format="##,###,###0.00" autocomplete="off"
+                                     tabindex="1"></InputNumber>
+                        <ValidationMessage For="@(() => modelo.MontoExtraISR)" />
+                    </div>
+                    <div class="form-group col-xs-12 col-md-1" style="padding-right:5px !important;padding-left:5px !important;">
+                        <label for="ISRExtra" class="control-label col-md-12" style="font-weight:bold;">ISR Extra</label>
+                        <InputNumber form="ISRExtra" class="form-control" style="text-align:right;border:1px solid #48C9B0;"
+                                     @bind-Value="modelo.ISRExtra" @bind-Value:format="##,###,###0.00" autocomplete="off"
+                                     tabindex="1"></InputNumber>
+                        <ValidationMessage For="@(() => modelo.ISRExtra)" />
+                    </div>
+                    <div class="form-group col-xs-12 col-md-2" style="padding-right:5px !important;padding-left:5px !important;">
+                        <label for="PorcentajeVales" class="control-label col-md-12" style="font-weight:bold;">Porcentaje Vales</label>
+                        <InputNumber form="ISRExtra" class="form-control" style="text-align:right;border:1px solid #48C9B0;"
+                                     @bind-Value="modelo.PorcentajeVales" @bind-Value:format="##,###,###0.00" autocomplete="off"
+                                     tabindex="1"></InputNumber>
+                        <ValidationMessage For="@(() => modelo.PorcentajeVales)" />
+                    </div>
+                </div>
+            </div>
+
+
+        </EditForm>
+
+
+
+
+    </Contenido>
+</CardBlazor>
+
+@code {
+    string[] lParam = { };
+    string[] lVar = { };
+    protected string Titulo = "C O N F I G U R A C I Ó N";
+    protected ConfigDto modelo = new();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+
+        await BuscarCodigo();
+
+        this.StateHasChanged();
+    }
+
+    protected async Task SaveModelo()
+    {
+        try
+        {
+            int valor = await GuardarDatos();
+            MostrarMensaje("save", "spConfiguracion", valor);
+
+            if (valor == 0){ NavManager.NavigateTo("/"); }
+
+        }
+        catch (Exception e)
+        {
+            await JsRuntime.InvokeVoidAsync("MostrarToastr", "error", e.Message);
+        }
+
+    }
+
+    private async Task<int> GuardarDatos()
+    {
+        var variable = MyAutoMapper<ConfigDto, ConfigE>.Map(modelo);
+
+        int valor = await Task.Run(() => lService.InsertUpdateModelo("c_spConfiguracion", variable));
+
+        return valor;
+    }
+
+    private void Cancel()
+    {
+        NavManager.NavigateTo("/cEmpleado/ListEmpleados");
+    }
+    //-------------------------------------------------------------------------
+    //-------------------------FUNCIONES
+    private async Task BuscarCodigo()
+    {
+        string[] lParam = new string[] { "@Opc" };
+        string[] lVar = new string[] { "2" };
+
+
+        var parametrosEnvio = await Task.Run(() => lService.CreaDiccionario(lParam, lVar));
+        modelo = await lService.BDBuscarReg("c_spConfiguracion", parametrosEnvio);
+    }
+
+        private void MostrarMensaje(string opc, string mensajeError, int valor = -1)
+        {
+            string tipo = string.Empty;
+            string tipomsg = string.Empty;
+
+            if (valor == 1) { opc = "error"; }
+
+            switch (opc)
+            {
+                case "save":
+                    tipo = "MostrarSwal";
+                    tipomsg = "success";
+                    mensajeError = "Información Guardada";
+                    break;
+                case "correcto":
+                    tipo = "MostrarToastr";
+                    tipomsg = "success";
+                    mensajeError = "Proceso Correcto";
+                    break;
+                case "info":
+                    tipo = "MostrarToastr";
+                    tipomsg = "info";
+                    mensajeError = "Informativo";
+                    break;
+                case "warning":
+                    tipo = "MostrarToastr";
+                    tipomsg = "warning";
+                    mensajeError = "Advertencia";
+                    break;
+                case "error":
+                    tipo = "MostrarToastr";
+                    tipomsg = "error";
+                    break;
+            }
+            Task.Run(() => JsRuntime.InvokeVoidAsync(tipo, tipomsg, mensajeError));
+        }
+
+}

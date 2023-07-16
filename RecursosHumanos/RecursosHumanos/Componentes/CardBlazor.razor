@@ -1,0 +1,18 @@
+﻿<div class="top-buffer"></div>
+<div class="card border-primary mb-3">
+    <div class="card-header @ColorMarco @ColorTexto"><strong>@Titulo</strong></div>
+    <div class="card-body" id=@IdName>
+        @Contenido
+    </div>
+</div>
+@code {
+    [Parameter] public string IdName { get; set; } = string.Empty;
+
+    [Parameter] public string Titulo { get; set; } = string.Empty;
+
+    [Parameter] public string ColorMarco { get; set; } = string.Empty;
+
+    [Parameter] public string ColorTexto { get; set; } = string.Empty;
+
+    [Parameter] public RenderFragment? Contenido { get; set; }
+}

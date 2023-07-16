@@ -1,0 +1,390 @@
+﻿@page "/cPuesto/Puestos"
+
+@using Dapper;
+@using Modelo.Dto;
+@using Modelo.Entity;
+@using Modelo.Mapeo;
+@using Negocio.Interfaces;
+@using Rinku.Componentes
+@using System.Data;
+@attribute [Authorize]
+
+
+@inject IGeneral<PuestosDto> lService
+@inject IGeneral<LlenarComboDto> lServiceCombo  //un solo servicio para llenar Combo*@
+
+
+<CardBlazor ColorMarco="bg-warning" ColorTexto="#000000" Titulo="P U E S T O S">
+    <Contenido>
+        <div class="btn-toolbar" style="display: flex;justify-content: center;">
+
+            <div class="form-group col-md-3">
+                <button class="btn btn-primary" @onclick="@(()=>OpenModalDialog(0))" data-toggle="tooltip" data-placement="top" title="Nuevo Registro"><i class="oi oi-plus"></i> Nuevo</button>
+                <a href="/" class="btn btn-primary" role="button">
+                    <i class="fas fa-user-plus"></i>
+                    Salir
+                </a>
+            </div>
+
+            <div class="col-md-3">
+                <input type="text" class="form-control" placeholder="Search by Name" @bind-value="@searchText" @bind-value:event="oninput" @onkeyup="SearchChanged" />
+            </div>
+
+        </div>
+
+        @if (DatosObj!=null)
+        {
+            @if (DatosObj.Count < 1)
+            {
+                if (@isLoading)
+                {
+                    <div class="spinner"></div>
+                }
+                <p>Sin Información......</p>
+            }
+            else
+            {
+                <GridBlazor Title="" Items="@DatosObj" Context="Datos">
+                    <HeaderTemplate>
+                        <th class="th-sm"></th>
+                        <th class="th-sm">Codigo</th>
+                        <th class="th-sm">Nombre</th>
+                        <th class="th-sm">BonoXHora</th>
+                        <th class="th-sm">Situación</th>
+                    </HeaderTemplate>
+                    <RowTemplate>
+                        <td>
+                            <button class="btn btn-outline-success btn-sm" data-toggle="tooltip" data-placement="top" title="Editar Registro"
+                                @onclick="@(() =>OpenModalDialog(@Datos.Id))">
+                                <i class="oi oi-pencil"></i>
+                            </button>
+                           <button class="btn btn-outline-danger btn-sm" data-toggle="tooltip" data-placement="top" title="Baja Registro"
+                                @onclick="@(()=>OpenDeleteDialog(@Datos.Id))">
+                                <i class="oi oi-trash"></i>
+                            </button>
+                        </td>
+                        <td class="text-left">@Datos.Id</td>
+                        <td class="text-left">@Datos.Nombre</td>
+                        <td class="text-left">@Datos.BonoHora</td>
+                          <td class="text-center" style="@ColorRegistro(@Datos.Estatus)">
+                            @situacionRow
+                        </td>
+                    </RowTemplate>
+                </GridBlazor>
+            }
+        }
+
+        @*--------------------------------------------------------------------------------------*@
+        @*------------------------------MODALES-------------------------------------------------*@
+        @*--------------------------------------------------------------------------------------*@
+        @if (OpenDialogoDelete)
+        {
+            <ModalDelete Show="ShowModal" Tamaño="" Title="@ModalHeader" OnClose="@CloseDialogDelete"
+                         DialogType="@Botonmodal">
+                <ModalBody>
+                    @ContenidoBody
+                </ModalBody>
+            </ModalDelete>
+        }
+
+        @if (OpenDialogoAddEdit)
+        {
+            @*tamaño: modal-dialog modal-sm    modal-dialog modal-lg    modal-dialog modal-xl    ""*@
+            <ModalCustom Show="ShowModal" TItem="PuestosDto" Model="model" Tamaño="" OnValidSubmit="SaveModelo" OnInValidSubmit="SaveModelo" Title="@ModalHeader" OnClose="@OnDialogClose"
+                     DialogType="ModalCustom<PuestosDto>.ModalDialogType.GuardarCancel">
+                <ModalBody>
+                    @*<DataAnnotationsValidator />*@ @*--Validamos el formulario y si esta en error los marca en rojo y el texto lo pone en la parte superior*@
+                    @*<ValidationSummary />*@ @*--Muestra mensaje que defines en modelo*@
+                        <div class="row">
+                            <div class="input-group d-inline-flex">
+                                <div class="form-group col-md-10" style="padding-left:5px !important;padding-right:5px !important;">
+                                    <InputTextCustom Label="Nombre" LabelStyle="font-weight:bold;" Id="elemetnToFocus" @bind-Value="model.Nombre" ValidarEnter=true
+                                                 ValidationFor="@(() => model.Nombre)" BorderDiseño="1px solid" ColorBorde="#48C9B0" tabindex="1" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                             <div class="input-group d-inline-flex">
+                                <div class="form-group col-xs-12 col-md-3" style="padding-right:5px !important;padding-left:5px !important;">
+                                    <label for="BonoHora" class="control-label col-md-12" style="font-weight:bold;">Bono x Hora</label>
+                                    <InputNumber form="BonoHora" class="form-control" style="text-align:right;border:1px solid #48C9B0;"
+                                                 @bind-Value="model.BonoHora" @bind-Value:format="##,###,###0.00" autocomplete="off"
+                                                 title="Total en # de Dias" tabindex="6"></InputNumber>
+                                        <ValidationMessage For="@(() => model.BonoHora)" />
+                                </div>
+                                <div class="form-group col-md-10" style="padding-left:5px !important;padding-right:5px !important;">
+                                    <InputCheckBoxCustom Label="Pagar Bono" LabelStyle="font-weight:bold;" @bind-CheckValueStr="model.Pagar" />
+                                </div>
+                            </div>
+                        </div>
+
+                </ModalBody>
+            </ModalCustom>
+        }
+
+    </Contenido>
+</CardBlazor>
+
+@code {
+
+    private bool isLoading = true;
+    string[] lParam = { };
+    string[] lVar = { };
+    string situacionRow = "";
+    string KeyPressed = "";
+    bool Desactivar = false;
+    private List<PuestosDto> DatosObj = new();
+    private List<LlenarComboDto> Depart = new();
+
+    private string searchText = "";
+    string newfiltro = ""; /*"FechaBaja != 'B'";*/
+
+    //---------------MODAL-------------------
+    //----delete
+    bool ShowModal = false;
+    Rinku.Componentes.ModalDelete.ModalDialogType Botonmodal=ModalDelete.ModalDialogType.DeleteCancel;
+    public string ModalHeader = "";
+    public object ContenidoBody = "";
+    //--nuevo y edicion
+    private int IdDato = 0;
+    PuestosDto model = new PuestosDto();
+    private bool OpenDialogoAddEdit { get; set; }
+    private bool OpenDialogoDelete { get; set; }
+    //----------------------------------------
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+
+        await Task.Run(() => LoadList());
+    }
+
+    private async Task LoadList()
+    {
+        try
+        {
+            //System.Threading.Thread.Sleep(3000);
+            var parametrosEnvio = ParametrosSp(2, model, newfiltro);
+
+            DatosObj = await lService.ListAll("c_spPuestos", await parametrosEnvio.ConfigureAwait(false));  //cuando no es asincrona la funcion se llama asi, await Task.Delay(1); para que StateHasChanged() funcione
+
+            isLoading = false;
+        }
+        catch (Exception e)
+        {
+            MostrarMensaje("error", e.Message);
+        }
+    }
+
+    //----------------------M O D A L -------------------------
+    //------------CERRAR MODAL
+    private async Task OnDialogClose(bool accepted)
+    {
+
+        ShowModal = false;
+        OpenDialogoAddEdit = false;
+        OpenDialogoDelete = false;
+        await InvokeAsync(StateHasChanged);
+    }
+    //------------MODAL NUEVO O EDITAR REGISTRO
+    private async Task OpenModalDialog(int id)
+    {
+        model = new PuestosDto();
+
+        ModalHeader = "Puesto - EDITAR";
+        if (id == 0)
+        {
+            //Inabilitar = false;
+            ModalHeader = "Puesto - ALTA";
+        }
+        else
+        {
+            //Inabilitar = true;
+            await BuscarRegistro(id);
+        }
+
+        OpenDialogoAddEdit = true;
+        ShowModal = true;
+
+        await InvokeAsync(StateHasChanged);//Recarga el grid
+    }
+
+    private async Task SaveModelo(bool valormodel)
+    {
+        try
+        {
+            if (valormodel) //valida el modelo y regresa true o false
+            {
+                var variable = MyAutoMapper<PuestosDto, PuestoE>.Map(model);
+
+                int valor = await Task.Run(() => lService.InsertUpdateModelo("c_spPuestos", variable));
+                MostrarMensaje("save", "spPuestos", valor);
+
+                OpenDialogoAddEdit = false;
+                ShowModal = false;
+
+                await Task.Run(() => LoadList());
+                await InvokeAsync(StateHasChanged); //Recarga el grid
+            }
+        }
+        catch (Exception e)
+        {
+            MostrarMensaje("error", e.Message);
+        }
+
+    }
+
+    //------------MODAL PARA BORRAR REGISTRO
+    private async Task OpenDeleteDialog(int id)
+    {
+        model = new PuestosDto();
+
+        IdDato = id;
+        await BuscarRegistro(id);
+
+        if (model.Estatus == "B")
+        {
+            ModalHeader = "Desea Activar El Registro?";
+            Botonmodal = ModalDelete.ModalDialogType.OkCancel;
+        }
+        else
+        {
+            ModalHeader = "Desea Desactivar El Registro?";
+        }
+
+        ContenidoBody = model.Nombre.Trim();
+        OpenDialogoDelete = true;
+        ShowModal = true;
+    }
+
+    private async Task BuscarRegistro(int id)
+    {
+        if (id > 0)
+        {
+            var lmodelo = model;
+            var parametrosEnvio = ParametrosSp(4, lmodelo, "Id=" + id.ToString());
+            model = await lService.BDBuscarReg("c_spPuestos", await parametrosEnvio.ConfigureAwait(false));
+        }
+    }
+
+    private async Task CloseDialogDelete(bool accepted)
+    {
+        if (accepted) //Borra el Registro
+        {
+            var lmodelo = model;
+            var parametrosEnvio = ParametrosSp(3, lmodelo);
+
+            int result = await lService.BDAccion("c_spPuestos", await parametrosEnvio.ConfigureAwait(false));
+
+            await LoadList();
+            IdDato = 0;
+        }
+        ShowModal = false;
+        OpenDialogoDelete = false;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task SearchChanged()
+    {
+        bool entro = false;
+        newfiltro = "Nombre like '%" + searchText + "%'";
+        int longitud = searchText.Trim().Length;
+
+        int numericValue;
+        bool isNumber = int.TryParse(searchText, out numericValue);
+
+        if (isNumber)
+        {
+            entro = true;
+            newfiltro = "Id=" + searchText;
+        }
+        else
+        {
+            if (longitud > 2)
+            {
+                entro = true;
+            }
+        }
+        //---
+        if (entro || longitud <= 0)
+        {
+            await Task.Run(() => LoadList());
+            await InvokeAsync(StateHasChanged);
+        }
+
+    }
+
+    private async Task<IDictionary<string, object>> ParametrosSp(int opc, PuestosDto lmodel, string filtro = "")
+    {
+        string[] lParam = { "@Opc", "@Id", "@Filtro" };
+        string[] valor = { opc.ToString(), lmodel.Id.ToString(), filtro };
+
+        var parametros = await Task.Run(() => lService.CreaDiccionario(lParam, valor));
+
+        return parametros;
+    }
+
+    public void keydown(Microsoft.AspNetCore.Components.Web.KeyboardEventArgs args)
+    {
+        KeyPressed = "Key Pressed is " + args.Key;
+        if (args.Key == "Enter")
+        {
+            JsRuntime.InvokeVoidAsync("onFocus", "ItmNo");
+        }
+    }
+
+    private string ColorRegistro(string valor)
+    {
+        string colorRegreso = "";
+        switch (valor.Trim().Length)
+        {
+            case 0 :
+                situacionRow = "";
+                colorRegreso = "color:white";
+                break;
+            default:
+                situacionRow = "BAJA";
+                colorRegreso = "color:red";
+                break;
+
+        }
+        return colorRegreso;
+    }
+
+    private void MostrarMensaje(string opc, string mensajeError, int valor = -1)
+    {
+        string tipo = string.Empty;
+        string tipomsg = string.Empty;
+
+        if (valor == 1) { opc = "error"; }
+
+        switch (opc)
+        {
+            case "save":
+                tipo = "MostrarSwal";
+                tipomsg = "success";
+                mensajeError = "Información Guardada";
+                break;
+            case "correcto":
+                tipo = "MostrarToastr";
+                tipomsg = "success";
+                mensajeError = "Proceso Correcto";
+                break;
+            case "info":
+                tipo = "MostrarToastr";
+                tipomsg = "info";
+                mensajeError = "Informativo";
+                break;
+            case "warning":
+                tipo = "MostrarToastr";
+                tipomsg = "warning";
+                mensajeError = "Advertencia";
+                break;
+            case "error":
+                tipo = "MostrarToastr";
+                tipomsg = "error";
+                break;
+        }
+        Task.Run(() => JsRuntime.InvokeVoidAsync(tipo, tipomsg, mensajeError));
+    }
+}
